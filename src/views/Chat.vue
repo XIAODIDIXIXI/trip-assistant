@@ -3,45 +3,34 @@
 
 <template>
   <div class="chat">
-    <div class="welcome">
-      <h1 class="welcome-title">💬 AI 对话</h1>
-      <p class="welcome-sub">你的私人旅游管家，随时解答</p>
-    </div>
+    <van-nav-bar title="AI 对话" fixed />
 
-    <div class="placeholder-card">
-      <div class="placeholder-icon">💬</div>
-      <h3>AI 对话即将上线</h3>
-      <p>流式聊天 + 行程上下文 + 地图卡片嵌入</p>
+    <div class="content">
+      <div class="placeholder-card">
+        <div class="placeholder-icon">💬</div>
+        <h3>AI 对话即将上线</h3>
+        <p>流式聊天 + 行程上下文 + 地图嵌入</p>
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
 .chat {
-  max-width: 960px;
-  margin: 0 auto;
+  min-height: 100vh;
 }
 
-.welcome {
-  margin-bottom: 28px;
-}
-
-.welcome-title {
-  font-size: 28px;
-  margin-bottom: 6px;
-}
-
-.welcome-sub {
-  font-size: 15px;
-  color: var(--text-muted);
+.content {
+  padding-top: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
 }
 
 .placeholder-card {
-  background: var(--bg-card);
-  border-radius: var(--radius-lg);
-  padding: 64px 24px;
   text-align: center;
-  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
+  padding: 48px 24px;
 }
 
 .placeholder-icon {
@@ -56,5 +45,6 @@
 
 .placeholder-card p {
   color: var(--text-muted);
+  font-size: 14px;
 }
 </style>
