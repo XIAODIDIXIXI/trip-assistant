@@ -1,12 +1,107 @@
 <script setup>
+import { reactive, ref, computed } from 'vue'
+
+// 表单数据
+const formData = reactive({
+  city: '',
+  days: 3,
+  budget: 3000,
+  travelType: 'couple',
+  preferences: 'nature',
+})
+
+// 解析行程 JSON 内容
+const parsedContent = computed(() => {
+  if (!result.value?.content) return null
+  try {
+    const c = JSON.parse(result.value.content)
+    if (c?.schedule?.length) return c
+    return null
+  } catch {
+    return null
+  }
+})
+
+// 出行类型选项
+const travelTypes = [
+  { label: '👨‍👩‍👧 家庭', value: 'family' },
+  { label: '💑 情侣', value: 'couple' },
+  { label: '🧑‍💻 独自', value: 'solo' },
+  { label: '👥 朋友', value: 'friend' },
+]
+
+// 兴趣偏好
+const prefs = [
+  { label: '🍜 美食', value: 'food' },
+  { label: '🏔️ 自然', value: 'nature' },
+  { label: '🏛️ 人文', value: 'culture' },
+  { label: '🛍️ 购物', value: 'shopping' },
+  { label: '🚴 户外', value: 'outdoor' },
+]
+
+// 热门城市
+const hotCities = ['北京', '上海', '成都', '杭州', '西安', '三亚', '大理', '桂林']
+
+// 行程结果
+const result = ref(null)
+const loading = ref(false)
+const error = ref('')
+
+// 提交生成行程
+const handleSubmit = async () => {
+  if (!formData.city.trim()) {
+    error.value = '请输入目的地'
+    return
+  }
+
+  loading.value = true
+  error.value = ''
+  result.value = null
+
+  try {
+    const res = await fetch('http://localhost:8080/api/trips/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        city: formData.city,
+        days: formData.days,
+        budget: formData.budget,
+        travelType: formData.travelType,
+        preferences: formData.preferences,
+      }),
+    })
+
+    if (!res.ok) throw new Error('请求失败: ' + res.status)
+
+    const json = await res.json()
+    result.value = json.data
+  } catch (e) {
+    error.value = '生成失败：' + e.message
+  } finally {
+    loading.value = false
+  }
+}
+
+// 点击热门城市自动填入
+const selectCity = (city) => {
+  formData.city = city
+}
+
+// 切换出行类型
+const toggleType = (type) => {
+  formData.travelType = type
+}
+
+// 切换偏好
+const togglePref = (pref) => {
+  formData.preferences = pref
+}
 </script>
 
 <template>
   <div class="home">
-    <!-- 顶部导航 -->
     <van-nav-bar title="AI 旅游助手" fixed />
 
-    <!-- 公告 -->
     <div class="content-top">
       <van-notice-bar
         left-icon="volume-o"
@@ -28,91 +123,112 @@
 
       <div class="plan-form">
         <van-field
+          v-model="formData.city"
           label="目的地"
-          placeholder="请选择目的地"
-          is-link
-          readonly
-          clickable
+          placeholder="请选择或输入目的地"
+          clearable
         />
         <van-field
+          v-model.number="formData.days"
           label="天数"
           placeholder="请输入天数"
           type="digit"
         />
         <van-field
+          v-model.number="formData.budget"
           label="预算（元）"
           placeholder="请输入预算"
           type="number"
         />
 
+        <!-- 热门城市快捷选择 -->
+        <div class="form-section">
+          <div class="form-label">🔥 热门城市速选</div>
+          <div class="tag-row">
+            <span
+              v-for="city in hotCities"
+              :key="city"
+              class="city-quick"
+              :class="{ active: formData.city === city }"
+              @click="selectCity(city)"
+            >{{ city }}</span>
+          </div>
+        </div>
+
+        <!-- 出行类型 -->
         <div class="form-section">
           <div class="form-label">出行类型</div>
           <div class="tag-row">
-            <span class="tag">👨‍👩‍👧 家庭</span>
-            <span class="tag tag-active">💑 情侣</span>
-            <span class="tag">🧑‍💻 独自</span>
-            <span class="tag">👥 朋友</span>
+            <span
+              v-for="t in travelTypes"
+              :key="t.value"
+              class="tag"
+              :class="{ 'tag-active': formData.travelType === t.value }"
+              @click="toggleType(t.value)"
+            >{{ t.label }}</span>
           </div>
         </div>
 
+        <!-- 兴趣偏好 -->
         <div class="form-section">
           <div class="form-label">兴趣偏好</div>
           <div class="tag-row">
-            <span class="tag">🍜 美食</span>
-            <span class="tag tag-active">🏔️ 自然</span>
-            <span class="tag">🏛️ 人文</span>
-            <span class="tag">🛍️ 购物</span>
-            <span class="tag">🚴 户外</span>
+            <span
+              v-for="p in prefs"
+              :key="p.value"
+              class="tag"
+              :class="{ 'tag-active': formData.preferences === p.value }"
+              @click="togglePref(p.value)"
+            >{{ p.label }}</span>
           </div>
         </div>
 
-        <van-button type="primary" block round size="large">
+        <!-- 错误提示 -->
+        <div v-if="error" class="error-msg">{{ error }}</div>
+
+        <van-button
+          type="primary"
+          block
+          round
+          size="large"
+          :loading="loading"
+          @click="handleSubmit"
+        >
           🚀 生成行程
         </van-button>
       </div>
     </div>
 
-    <!-- 数据卡片行 -->
-    <div class="stats-row">
-      <div class="stat-card">
-        <div class="stat-icon">☀️</div>
-        <div class="stat-value">--°</div>
-        <div class="stat-name">目的地天气</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon">💰</div>
-        <div class="stat-value">--</div>
-        <div class="stat-name">预估预算</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon">🌍</div>
-        <div class="stat-value">0</div>
-        <div class="stat-name">已点亮</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon">📋</div>
-        <div class="stat-value">0</div>
-        <div class="stat-name">行程</div>
+    <!-- 行程结果 -->
+    <div v-if="result" class="card result-card">
+      <h2 class="card-title">📋 {{ result.city }} {{ result.days }}日行程</h2>
+
+      <!-- 解析 JSON 行程内容 -->
+      <div v-if="result.content" class="schedule-list">
+        <template v-if="parsedContent">
+          <div
+            v-for="day in parsedContent.schedule"
+            :key="day.day"
+            class="day-block"
+          >
+            <div class="day-title">Day {{ day.day }}</div>
+            <div class="day-items">
+              <div v-for="(item, i) in day.items" :key="i" class="day-item">
+                <span class="item-time">{{ item.time }}</span>
+                <span class="item-activity">{{ item.activity }}</span>
+              </div>
+            </div>
+          </div>
+        </template>
+        <div v-else class="raw-content">
+          <p>行程内容：</p>
+          <pre>{{ result.content }}</pre>
+        </div>
       </div>
     </div>
 
-    <!-- 热门目的地 -->
-    <div class="card">
-      <h2 class="card-title">热门目的地</h2>
-      <div class="city-tags">
-        <span class="city-tag">北京</span>
-        <span class="city-tag">上海</span>
-        <span class="city-tag">成都</span>
-        <span class="city-tag">杭州</span>
-        <span class="city-tag">西安</span>
-        <span class="city-tag">三亚</span>
-        <span class="city-tag">大理</span>
-        <span class="city-tag">桂林</span>
-      </div>
-    </div>
-
-    <!-- 行程结果占位 -->
-    <div class="result-placeholder">
+    <!-- 结果占位 -->
+    <div v-else-if="!loading" class="result-placeholder">
       <p>输入目的地和天数，点击"生成行程"开始规划 ✈️</p>
     </div>
   </div>
@@ -123,7 +239,6 @@
   padding-bottom: 20px;
 }
 
-/* 顶部留出 NavBar 空间 */
 .content-top {
   margin-top: 46px;
 }
@@ -203,53 +318,75 @@
   background: var(--accent-bg);
 }
 
-/* 数据卡片行 */
-.stats-row {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-  padding: 0 12px;
-  margin-bottom: 12px;
-}
-
-.stat-card {
-  background: var(--bg-card);
-  border-radius: var(--radius-md);
-  padding: 14px 8px;
-  text-align: center;
-  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.02);
-}
-
-.stat-icon {
-  font-size: 20px;
-  margin-bottom: 4px;
-}
-
-.stat-value {
-  font-family: var(--font-display);
-  font-size: 18px;
-  color: var(--text-primary);
-  font-weight: 600;
-}
-
-.stat-name {
-  font-size: 11px;
-  color: var(--text-muted);
-}
-
-/* 热门目的地 */
-.city-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.city-tag {
-  padding: 6px 16px;
+.city-quick {
+  padding: 6px 14px;
   background: var(--bg-page);
   border: 1px solid var(--border);
   border-radius: 20px;
   font-size: 13px;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.city-quick.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-bg);
+}
+
+.error-msg {
+  color: #e74c3c;
+  font-size: 13px;
+  text-align: center;
+  padding: 4px 0;
+}
+
+/* 行程结果 */
+.result-card {
+  border-left: 3px solid var(--accent);
+}
+
+.schedule-list .day-block {
+  margin-bottom: 16px;
+}
+
+.day-title {
+  font-family: var(--font-display);
+  font-size: 16px;
+  color: var(--accent);
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.day-items {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.day-item {
+  display: flex;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--bg-page);
+  border-radius: var(--radius-sm);
+}
+
+.item-time {
+  font-size: 13px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  width: 36px;
+}
+
+.item-activity {
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.raw-content pre {
+  white-space: pre-wrap;
+  font-size: 12px;
   color: var(--text-secondary);
 }
 
