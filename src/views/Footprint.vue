@@ -2,22 +2,22 @@
 </script>
 
 <template>
-  <div class="chat">
+  <div class="footprint">
     <div class="welcome">
-      <h1 class="welcome-title">💬 AI 对话</h1>
-      <p class="welcome-sub">你的私人旅游管家，随时解答</p>
+      <h1 class="welcome-title">🌍 我的足迹</h1>
+      <p class="welcome-sub">去过的城市，会在地球上点亮</p>
     </div>
 
     <div class="placeholder-card">
-      <div class="placeholder-icon">💬</div>
-      <h3>AI 对话即将上线</h3>
-      <p>流式聊天 + 行程上下文 + 地图卡片嵌入</p>
+      <div class="placeholder-icon">🌍</div>
+      <h3>3D 地球即将上线</h3>
+      <p>尽情期待你的足迹遍布星球</p>
     </div>
   </div>
 </template>
 
 <style scoped>
-.chat {
+.footprint {
   max-width: 960px;
   margin: 0 auto;
 }

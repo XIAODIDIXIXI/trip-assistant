@@ -1,0 +1,85 @@
+/* ===== A1 柔和晨雾 — 设计 Token ===== */
+:root {
+  --bg-page: #F8F5F0;
+  --bg-card: #FFFFFF;
+  --bg-sidebar: #1A2332;
+  --accent: #E17055;
+  --accent-light: #E8896F;
+  --accent-bg: rgba(225, 112, 85, 0.08);
+  --text-primary: #2D3436;
+  --text-secondary: #636E72;
+  --text-muted: #B0A89E;
+  --border: #F0EBE3;
+  --border-strong: #E0D8CC;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --font-display: Georgia, 'Times New Roman', serif;
+  --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --sidebar-width: 220px;
+}
+
+/* ===== 全局重置 ===== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  background: var(--bg-page);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  color: var(--text-primary);
+  line-height: 1.3;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+/* ===== 滚动条 ===== */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 3px;
+}
+
+/* ===== Element Plus 主题覆盖 ===== */
+:root {
+  --el-color-primary: var(--accent);
+  --el-color-primary-light-3: var(--accent-light);
+  --el-border-radius-base: var(--radius-md);
+  --el-border-radius-round: 20px;
+  --el-font-size-base: 15px;
+  --el-font-family: var(--font-body);
+}
+
+/* 按钮 */
+.el-button--primary {
+  --el-button-bg-color: linear-gradient(90deg, var(--accent), var(--accent-light));
+  --el-button-border-color: transparent;
+}
+
+/* 输入框 */
+.el-input__wrapper {
+  background: var(--bg-page);
+  border-radius: var(--radius-md);
+  box-shadow: none;
+  border: 1px solid var(--border);
+}
